@@ -100,13 +100,24 @@ def plotAll():
     for f in flist:
         xgrid, ygrid, data = getEUVMaskFolder(f)
         plot(xgrid, ygrid, data, name=f[-8:-4])
+        
+def getDMSPCoord(dmspfn = 'f16_rl172331909_eclipse_only.txt'):
+    data = np.loadtxt(dmspfn, skiprows=3)# usecols=None, unpack=False, ndmin=0)[source]
+    yydd = int(data[0][0])
+    secinday = data[:,1]
+    dmsp_dt = [datetime.datetime.strptime(str(yydd)+str(datetime.timedelta(seconds=t)), '%Y%j%H:%M:%S') for t in secinday]
+    dmsp_lat = data[:,5]
+    dmsp_lon = data[:,6]
+    dmsp_Te = data[:,-2]
+    
+    return dmsp_dt, dmsp_lat, dmsp_lon, dmsp_Te
 
-def plotSingle(td = datetime.datetime(2017,8,21,18,35,0), gradient=0, mask=0):
+def plotSingle(td = datetime.datetime(2017,8,21,18,35,0), gradient=0, mask=0, dmsp=0):
     time = td.replace(tzinfo=datetime.timezone.utc).timestamp()
     xgrid, ygrid, data = getEUVMask(time)
     if isinstance(data, np.ndarray):
 #        plt.figure()
-        fig, ax, m = plotMap(latlim=[10,60], lonlim=[-140,-30])
+        fig, ax, m = plotMap(latlim=[0,60], lonlim=[-140,-20])
         title = td.strftime('%Y-%m-%d %H:%M:%S UT')
         ax.set_title(title)
         if gradient:
@@ -121,11 +132,22 @@ def plotSingle(td = datetime.datetime(2017,8,21,18,35,0), gradient=0, mask=0):
             x,y = m(xgrid,ygrid)
             levels = np.linspace(0,1,50)
             m.contour(x,y,data.T, levels, colors='r', linewidths=0.5)
+        if dmsp:
+            dmsp_dt, dmsp_lat, dmsp_lon, dmsp_Te = getDMSPCoord()
+            x,y = m(180-dmsp_lon,dmsp_lat)
+            m.plot(x,y, 'r', lw=3)
+            
+            plt.figure()
+            plt.plot(dmsp_dt, dmsp_Te, 'b')
 
 #plotAll()
 
-td = datetime.datetime(2017,8,21,18,15,0)
-plotSingle(td, gradient=1, mask=1)
+td = datetime.datetime(2017,8,21,19,15,0)
+plotSingle(td, gradient=1, mask=1, dmsp=1)
+
+# DMSP
+
+
 #
 #time = td.replace(tzinfo=datetime.timezone.utc).timestamp()
 #xgrid, ygrid, data = getEUVMask(time)
