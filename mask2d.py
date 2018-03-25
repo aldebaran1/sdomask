@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 
 
-EUVDIR = 'C:\\Users\\smrak\\Google Drive\\BU\\software\\sdomask\\HiResFull300\\'
+
 
 def getEUVMaskCoordinates(latlim=[-89.5,89.5],lonlim=[-180,180],nlat=180,nlon=360):
     xgrid, ygrid = mgrid[lonlim[0]:lonlim[1]:nlon*1j, latlim[0]:latlim[1]:nlat*1j]
@@ -25,11 +25,11 @@ def getEUVMaskFolder(f,nlat=180,nlon=360):
     npts = nlat*nlon
     data = fromfile(f,count=npts, dtype=float32).reshape((nlat,nlon))
     return xgrid, ygrid, data
-def getEUVMask(time,nlat=180,nlon=360):
+def getEUVMask(time,nlat=180,nlon=360,
+               EUVDIR = 'C:\\Users\\smrak\\Google Drive\\BU\\software\\sdomask\\HiResFull300\\'):
     """
     I: time in posix
     """
-    global EUVDIR
     xgrid, ygrid = getEUVMaskCoordinates(nlat=nlat, nlon=nlon)
     npts = nlat*nlon
     #Import EUV mask files
@@ -48,8 +48,8 @@ def getEUVMask(time,nlat=180,nlon=360):
     else:
         return 0, 0, 0
         
-def getMaskKeogram(nlat=180, nlon=360,X=39,lim=[-130, -60],direction='lat'):
-    global EUVDIR
+def getMaskKeogram(nlat=180, nlon=360,X=39,lim=[-130, -60],direction='lat',
+                   EUVDIR = 'C:\\Users\\smrak\\Google Drive\\BU\\software\\sdomask\\HiResFull300\\'):
     npts = nlat*nlon
     xgrid, ygrid = getEUVMaskCoordinates(nlat=nlat, nlon=nlon)
     if direction == 'lat':
@@ -184,11 +184,3 @@ def plotDMSPpos(lon=[],lat=[],m=''):
     x1,y1 = m(lon, lat)
     m.plot(x1,y1, 'h', ms=10, color='magenta')
     return m
-#    levels = np.linspace(0.005,0.035,50)
-#    im = abs(scipy.ndimage.filters.laplace(data))
-#    m.contourf(x,y,im.T, levels, cmap='jet', norm=colors.PowerNorm(gamma=0.8))
-#    cbar = m.colorbar(ticks=[0.005, 0.015, 0.025, 0.035])
-#    cbar.set_label('EUV flux gradient')
-#    
-#    levels = np.linspace(0.2,1,30)
-#    m.contour(x,y,data.T, levels, colors='r', alpha=0.7, linewidths=1)
