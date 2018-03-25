@@ -8,10 +8,11 @@ from os import path
 from glob import glob
 from h5py import File
 from datetime import datetime
-from numpy import fromfile, sort, mgrid, float32, where, nan, copy, ones
+from numpy import fromfile, sort, mgrid, float32, where, nan, copy, ones, linspace
 from scipy.ndimage import filters
 from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import matplotlib.colors as colors
 
 
@@ -133,6 +134,21 @@ def plotSDOMask(xgrid,ygrid,data,m,plot_type='contour',levels=[],
             cbar.set_label(cbar_label)
     
     return m
+    
+def plotMaskKeogram(t,Y,z,laplace=None,cmap='gray',alpha=0.9,):
+    z[z==1] = nan
+    fig = plt.figure(figsize=(12,8))
+    ax = fig.add_subplot(111)
+    formatter = mdates.DateFormatter('%H:%M')
+    plt.pcolormesh(t,Y,z.T, alpha=alpha, cmap=cmap)
+    plt.colorbar()
+    if laplace is not None:
+        levels = linspace(-0.03,0.03,10)
+        laplace[laplace>=levels[-1]] = levels[-1]
+        plt.contour(t,Y,laplace.T, levels, cmap='jet')
+    
+    ax.xaxis.set(major_formatter=formatter)
+    
 def plotSatelliteTrack(m='',lat=[],lon=[],c='r',lw=1):
     """
     """
